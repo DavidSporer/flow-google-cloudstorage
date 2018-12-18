@@ -487,6 +487,9 @@ class GcsTarget implements TargetInterface
             $projectBaseUri = '';
             if($this->projectBaseUri !== null) {
                 $projectBaseUri = $this->projectBaseUri;
+
+                // make sure only one slash is after the project base uri
+                $projectBaseUri = rtrim($projectBaseUri, "/");
             }
             return $projectBaseUri . $this->baseUri . $relativePathAndFilename;
         } else {
