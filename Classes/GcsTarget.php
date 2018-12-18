@@ -77,19 +77,19 @@ class GcsTarget implements TargetInterface
      * @var string[]
      */
     protected $gzipCompressionMediaTypes = [
-      'text/plain',
-      'text/css',
-      'text/xml',
-      'text/mathml',
-      'text/javascript',
-      'application/x-javascript',
-      'application/xml',
-      'application/rss+xml',
-      'application/atom+xml',
-      'application/javascript',
-      'application/json',
-      'application/x-font-woff',
-      'image/svg+xml'
+        'text/plain',
+        'text/css',
+        'text/xml',
+        'text/mathml',
+        'text/javascript',
+        'application/x-javascript',
+        'application/xml',
+        'application/rss+xml',
+        'application/atom+xml',
+        'application/javascript',
+        'application/json',
+        'application/x-font-woff',
+        'image/svg+xml'
     ];
 
     /**
@@ -150,6 +150,12 @@ class GcsTarget implements TargetInterface
     protected $bucketIsPublic;
 
     /**
+     * @Flow\InjectConfiguration(package="Neos.Flow", path="http.baseUri")
+     * @var string
+     */
+    protected $projectBaseUri;
+
+    /**
      * Constructor
      *
      * @param string $name Name of this target instance, according to the resource settings
@@ -163,19 +169,19 @@ class GcsTarget implements TargetInterface
             switch ($key) {
                 case 'bucket':
                     $this->bucketName = $value;
-                break;
+                    break;
                 case 'keyPrefix':
                     $this->keyPrefix = ltrim($value, '/');
-                break;
+                    break;
                 case 'corsAllowOrigin':
                     $this->corsAllowOrigin = $value;
-                break;
+                    break;
                 case 'baseUri':
                     $this->baseUri = $value;
-                break;
+                    break;
                 case 'gzipCompressionLevel':
                     $this->gzipCompressionLevel = intval($value);
-                break;
+                    break;
                 case 'gzipCompressionMediaTypes':
                     if (!is_array($value)) {
                         throw new Exception(sprintf('The option "%s" which was specified in the configuration of the "%s" resource GcsTarget is not a valid array. Please check your settings.', $key, $name), 1520267221740);
@@ -186,7 +192,7 @@ class GcsTarget implements TargetInterface
                         }
                     }
                     $this->gzipCompressionMediaTypes = $value;
-                break;
+                    break;
                 default:
                     if ($value !== null) {
                         throw new Exception(sprintf('An unknown option "%s" was specified in the configuration of the "%s" resource GcsTarget. Please check your settings.', $key, $name), 1446719852);
@@ -478,7 +484,11 @@ class GcsTarget implements TargetInterface
     {
         $relativePathAndFilename = $this->encodeRelativePathAndFilenameForUri($this->getRelativePublicationPathAndFilename($resource));
         if ($this->baseUri != '') {
-            return $this->baseUri . $relativePathAndFilename;
+            $projectBaseUri = '';
+            if($this->projectBaseUri !== null) {
+                $projectBaseUri = $this->projectBaseUri;
+            }
+            return $projectBaseUri . $this->baseUri . $relativePathAndFilename;
         } else {
             return 'https://storage.googleapis.com/' . $this->bucketName . '/'. $this->keyPrefix . $relativePathAndFilename;
         }
